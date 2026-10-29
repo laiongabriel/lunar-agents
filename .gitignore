@@ -1,0 +1,21 @@
+# Build output
+.gradle/
+build/
+out/
+bin/
+target/
+*.class
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.history/
+*.vsix
+
+# Gradle
+.gradletasknamecache
+gradle-app.setting
+
+# Local
+*.log
