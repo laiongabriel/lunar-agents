@@ -54,7 +54,8 @@ powershell -ExecutionPolicy Bypass -File .\build.ps1
 
 Gera `%TEMP%\unrestrictedbuild\unrestricted.jar`.
 
-Para instalar em `C:\Users\laion\Desktop\Lunar\agents`:
+Para instalar em `$env:LUNAR_AGENTS` (ou `C:\Users\laion\Desktop\Lunar\agents`
+sem a variável):
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\build.ps1 -Install

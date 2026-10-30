@@ -68,8 +68,9 @@ stack map frames não precisam ser recalculados.
 
 ## Build
 
-Requer JDK 17 (`C:\Program Files\Zulu\zulu-17`) e ASM 9.2 no cache do Gradle
-(os mesmos jars usados pelos outros agents).
+Requer JDK 17 (`$env:JAVA_HOME`, ou `C:\Program Files\Zulu\zulu-17` sem a
+variável) e ASM 9.2 no cache do Gradle (os mesmos jars usados pelos outros
+agents; fora do cache padrão, defina `ASM_HOME`).
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\build.ps1
@@ -77,7 +78,8 @@ powershell -ExecutionPolicy Bypass -File .\build.ps1
 
 Gera `%TEMP%\nhdbuild\nohitdelay.jar`.
 
-Para instalar em `C:\Users\laion\Desktop\Lunar\agents`:
+Para instalar em `$env:LUNAR_AGENTS` (ou `C:\Users\laion\Desktop\Lunar\agents`
+sem a variável):
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\build.ps1 -Install

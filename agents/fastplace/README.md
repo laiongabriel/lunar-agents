@@ -1,12 +1,13 @@
 # FastPlace
 
-This agent changes the delay between block placement when right click his held to 0, meaning every tick a new block will be placed, or an egg thrown.
+This agent changes the delay between block placement when right click is held.
 It is made for Minecraft and functions with most modpacks including forge and lunar client.
+## Build
 
-## Usage of this mod
+```powershell
+powershell -ExecutionPolicy Bypass -File .\build.ps1
+```
 
-This agent can be used easily by using [lunar-client-qt](https://github.com/Youded-byte/lunar-client-qt).
+Gera `%TEMP%\fastplacebuild\fastplace.jar`. O log de status fica em
+`%TEMP%\fastplace-status.log`.
 
-## This mod's usage on Hypixel
-
-This mod is not allowed on the Hypixel network and could result in a ban. Only use on servers/singeplayer with the owner's permission.

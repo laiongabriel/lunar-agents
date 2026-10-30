@@ -28,8 +28,9 @@ enxerga classes do jar do agent.
 
 ## Build
 
-Requer JDK 17 (`C:\Program Files\Zulu\zulu-17`) e os jars do ASM 9.2 no cache do
-Gradle (os mesmos usados pelo agent do FastPlace).
+Requer JDK 17 (`$env:JAVA_HOME`, ou `C:\Program Files\Zulu\zulu-17` sem a
+variável) e os jars do ASM 9.2 no cache do Gradle (os mesmos usados pelo agent
+do FastPlace; fora do cache padrão, defina `ASM_HOME`).
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\build.ps1
@@ -37,7 +38,8 @@ powershell -ExecutionPolicy Bypass -File .\build.ps1
 
 Gera `%TEMP%\cpsbuild\accuratecps.jar`.
 
-Para já instalar em `C:\Users\laion\Desktop\Lunar\agents`:
+Para já instalar em `$env:LUNAR_AGENTS` (ou `C:\Users\laion\Desktop\Lunar\agents`
+sem a variável):
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\build.ps1 -Install

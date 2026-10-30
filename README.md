@@ -13,6 +13,7 @@ ao lado do executável (por padrão `%USERPROFILE%\Desktop\Lunar\agents`).
 | Pasta | Jar gerado | O que faz |
 | --- | --- | --- |
 | [`agents/accuratecps`](agents/accuratecps) | `accuratecps.jar` | Faz o HUD de CPS contar as ações reais de clique (`clickMouse` / `rightClickMouse`) em vez dos eventos crus do mouse. |
+| [`agents/altmanager`](agents/altmanager) | `altmanager.jar` | Gerenciador de contas offline (cracked) com tela própria no jogo, aberta pelo botão "Alt Manager" na lista de servidores: hooka `Minecraft.getSession()` e troca a sessão sem reiniciar. |
 | [`agents/fastplace`](agents/fastplace) | `fastplace.jar` | Zera o `rightClickDelayTimer` para colocar bloco/lançar ovo a cada tick com o botão direito pressionado. |
 | [`agents/nohitdelay`](agents/nohitdelay) | `nohitdelay.jar` | Remove o delay de 10 ticks aplicado depois de um clique esquerdo que erra. |
 | [`agents/unrestricted`](agents/unrestricted) | `unrestricted.jar` | Aplica os hooks do `weave-unrestricted` (blacklist de mods, polling rate, texture pack, reach display e gate de staff/xray). |
@@ -29,9 +30,11 @@ Todos os agents:
 
 Requisitos:
 
-- JDK 17 (os scripts usam `C:\Program Files\Zulu\zulu-17`; ajuste o caminho
-  `$jdk` no script do agent se o seu estiver em outro lugar);
-- ASM 9.2 no cache do Gradle (`~/.gradle/caches/modules-2/files-2.1/org.ow2.asm`).
+- JDK 17: os scripts usam `$env:JAVA_HOME\bin` e, sem a variável, caem em
+  `C:\Program Files\Zulu\zulu-17\bin`;
+- ASM 9.2 no cache do Gradle (`$env:USERPROFILE\.gradle\caches\modules-2\files-2.1\org.ow2.asm`).
+  Se o cache estiver em outro lugar, defina `ASM_HOME` apontando para a pasta
+  `org.ow2.asm`.
 
 Build de todos os agents:
 
@@ -39,7 +42,8 @@ Build de todos os agents:
 powershell -ExecutionPolicy Bypass -File .\build.ps1
 ```
 
-Build + cópia para `C:\Users\laion\Desktop\Lunar\agents`:
+Build + cópia para a pasta de agents do Lunar. O destino é `$env:LUNAR_AGENTS`
+ou, sem a variável, `C:\Users\laion\Desktop\Lunar\agents`:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\build.ps1 -Install
@@ -51,11 +55,12 @@ Build individual (cada pasta tem seu próprio script):
 powershell -ExecutionPolicy Bypass -File .\agents\accuratecps\build.ps1
 powershell -ExecutionPolicy Bypass -File .\agents\nohitdelay\build.ps1
 powershell -ExecutionPolicy Bypass -File .\agents\unrestricted\build.ps1
-cd .\agents\fastplace; .\gradlew.bat build
+powershell -ExecutionPolicy Bypass -File .\agents\altmanager\build.ps1
+powershell -ExecutionPolicy Bypass -File .\agents\fastplace\build.ps1
 ```
 
 Os scripts geram os jars em `%TEMP%` (`cpsbuild`, `nhdbuild`,
-`unrestrictedbuild`) e o FastPlace em `agents\fastplace\build\libs`.
+`unrestrictedbuild`, `altmanagerbuild`, `fastplacebuild`).
 
 ## Estrutura
 
@@ -64,7 +69,8 @@ lunar-agents/
 ├── build.ps1            # build de todos os agents (opcional: -Install)
 ├── agents/
 │   ├── accuratecps/     # Agent.java + CpsRuntime.java + build.ps1
-│   ├── fastplace/       # projeto Gradle (build.gradle + gradlew)
+│   ├── altmanager/      # Agent.java + AltRuntime.java + GuiAltManager.java + stubs/ + build.ps1
+│   ├── fastplace/       # Agent.java + build.ps1
 │   ├── nohitdelay/      # Agent.java + build.ps1
 │   └── unrestricted/    # Agent.java + UnrestrictedTransformer.java + build.ps1
 └── README.md

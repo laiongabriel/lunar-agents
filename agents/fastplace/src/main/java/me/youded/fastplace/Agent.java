@@ -2,6 +2,11 @@ package me.youded.fastplace;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.security.ProtectionDomain;
 import java.util.Set;
 
@@ -47,14 +52,19 @@ public class Agent {
     /** Value written instead: 2 ticks (~100 ms), same as the original fastplace. */
     private static final int NEW_DELAY = 2;
 
+    private static final Path LOG_FILE =
+            Paths.get(System.getProperty("java.io.tmpdir"), "fastplace-status.log");
+
     public static void premain(String args, Instrumentation inst) {
+        resetLog();
+        log("agent starting");
         inst.addTransformer(new ClassFileTransformer() {
             @Override
             public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
                                     ProtectionDomain protectionDomain, byte[] classfileBuffer) {
                 byte[] patched = patch(className, classfileBuffer);
                 if (patched != null) {
-                    System.out.println("[FastPlace] patched " + className);
+                    log("patched " + className);
                 }
                 return patched;
             }
@@ -86,7 +96,7 @@ public class Agent {
             cn.accept(cw);
             return cw.toByteArray();
         } catch (Throwable t) {
-            System.out.println("[FastPlace] failed on " + className + ": " + t);
+            log("failed on " + className + ": " + t);
             return null;
         }
     }
@@ -150,7 +160,7 @@ public class Agent {
                         continue;
                     }
                     method.instructions.set(value, intInsn(NEW_DELAY));
-                    System.out.println("[FastPlace] " + cn.name + "." + method.name + " -> delay " + NEW_DELAY);
+                    log(cn.name + "." + method.name + " -> delay " + NEW_DELAY);
                     changed = true;
                 }
             }
@@ -168,7 +178,7 @@ public class Agent {
             for (AbstractInsnNode insn : method.instructions) {
                 if (insn.getOpcode() == Opcodes.ICONST_4) {
                     method.instructions.set(insn, intInsn(NEW_DELAY));
-                    System.out.println("[FastPlace] " + cn.name + "." + method.name + " (fallback) -> delay " + NEW_DELAY);
+                    log(cn.name + "." + method.name + " (fallback) -> delay " + NEW_DELAY);
                     changed = true;
                 }
             }
@@ -215,5 +225,23 @@ public class Agent {
             }
         }
         return null;
+    }
+
+    private static void resetLog() {
+        try {
+            Files.write(LOG_FILE, new byte[0], StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        } catch (Throwable ignored) {
+            // Logging must never break class loading.
+        }
+    }
+
+    private static void log(String message) {
+        System.out.println("[FastPlace] " + message);
+        try {
+            Files.write(LOG_FILE, (message + System.lineSeparator()).getBytes(StandardCharsets.UTF_8),
+                    StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+        } catch (Throwable ignored) {
+            // Logging must never break class loading.
+        }
     }
 }
