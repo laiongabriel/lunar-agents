@@ -35,8 +35,8 @@ public class GuiAltManager extends GuiScreen {
     private static final int ID_DOWN = 6;
 
     private static final int COLOR_BORDER = 0x60FFFFFF;
-    /** Panel is 31% black so the game background still shows through. */
-    private static final int COLOR_PANEL = 0x50000000;
+    /** Panel is 38% black so the game background still shows through. */
+    private static final int COLOR_PANEL = 0x60000000;
     private static final int COLOR_LINE = 0x30FFFFFF;
     private static final int COLOR_TEXT = 0xFFFFFFFF;
     private static final int COLOR_DIM = 0xFFA0A0A0;
@@ -56,6 +56,7 @@ public class GuiAltManager extends GuiScreen {
 
     private String input;
     private boolean renaming;
+    private boolean selectAll;
     private String status = "";
     private boolean statusIsError;
     private long statusUntil;
@@ -305,6 +306,11 @@ public class GuiAltManager extends GuiScreen {
         drawRect(x + 10, y + 22, x + boxWidth - 10, y + 42, COLOR_ROW);
 
         String cursor = (System.currentTimeMillis() / 500L) % 2L == 0L ? "_" : "";
+
+        if (this.selectAll && !this.input.isEmpty()) {
+            drawRect(x + 14, y + 26, x + 14 + font().getStringWidth(this.input), y + 38, 0x60FFFFFF);
+        }
+
         font().drawString(fit(this.input + cursor, boxWidth - 26), x + 15, y + 28, COLOR_TEXT);
 
         font().drawString("Enter to confirm, Esc to cancel", x + 10, y + 48, COLOR_DIM);
@@ -428,24 +434,89 @@ public class GuiAltManager extends GuiScreen {
 
         if (keyCode == 1) {
             this.input = null;
+            this.selectAll = false;
             return;
         }
 
         if (keyCode == 28) {
+            this.selectAll = false;
             confirmInput();
             return;
         }
 
+        // Ctrl+V / Ctrl+A arrive with a control character as typedChar, which is
+        // why they were being dropped by the name filter before.
+        if (keyCode == 47 && typedChar < 32) {
+            paste();
+            return;
+        }
+
+        if (keyCode == 30 && typedChar < 32) {
+            this.selectAll = !this.input.isEmpty();
+            return;
+        }
+
         if (keyCode == 14) {
-            if (!this.input.isEmpty()) {
+            if (this.selectAll) {
+                this.input = "";
+                this.selectAll = false;
+            } else if (!this.input.isEmpty()) {
                 this.input = this.input.substring(0, this.input.length() - 1);
             }
             return;
         }
 
         if (this.input.length() < 16 && isAllowed(typedChar)) {
+            if (this.selectAll) {
+                this.input = "";
+                this.selectAll = false;
+            }
             this.input += typedChar;
         }
+    }
+
+    /** Appends the clipboard text, keeping only characters a name can have. */
+    private void paste() {
+        String text = clipboardText();
+        StringBuilder clean = new StringBuilder();
+
+        for (int i = 0; i < text.length(); i++) {
+            char c = text.charAt(i);
+            if (isAllowed(c)) {
+                clean.append(c);
+            }
+        }
+
+        if (clean.length() == 0) {
+            return;
+        }
+
+        if (this.selectAll) {
+            this.input = "";
+            this.selectAll = false;
+        }
+
+        int room = 16 - this.input.length();
+        if (room <= 0) {
+            return;
+        }
+
+        this.input += clean.substring(0, Math.min(room, clean.length()));
+    }
+
+    private static String clipboardText() {
+        try {
+            java.awt.datatransfer.Transferable contents =
+                    java.awt.Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null);
+            if (contents != null
+                    && contents.isDataFlavorSupported(java.awt.datatransfer.DataFlavor.stringFlavor)) {
+                Object data = contents.getTransferData(java.awt.datatransfer.DataFlavor.stringFlavor);
+                return data == null ? "" : data.toString();
+            }
+        } catch (Throwable ignored) {
+            // No clipboard available: the field just stays unchanged.
+        }
+        return "";
     }
 
     @Override
@@ -469,6 +540,7 @@ public class GuiAltManager extends GuiScreen {
     private void startInput(String value, boolean rename) {
         this.input = value == null ? "" : value;
         this.renaming = rename;
+        this.selectAll = false;
     }
 
     private void confirmInput() {

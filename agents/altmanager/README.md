@@ -50,7 +50,8 @@ Só primitivas do jogo (`Gui.drawRect`, `FontRenderer.drawString`/`getStringWidt
   com a conta ativa selecionada, o botão vira **`Set Inactive`** e limpa a conta
   ativa (o jogo volta a usar a sessão do launcher no próximo join);
 - campo de nome no centro (borda de 1 px + fundo translúcido), Enter confirma,
-  Esc cancela, nick `3-16` `[A-Za-z0-9_]`;
+  Esc cancela, **Ctrl+A** seleciona tudo e **Ctrl+V** cola (o texto é filtrado
+  para `[A-Za-z0-9_]`), nick `3-16`;
 - a mensagem de status aparece entre o painel e os botões;
 - salva a cada alteração (arquivo temporário + move atômico);
 - `Done` / `Esc` voltam para a lista de servidores.
