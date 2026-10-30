@@ -47,6 +47,8 @@ Só primitivas do jogo (`Gui.drawRect`, `FontRenderer.drawString`/`getStringWidt
 - setas de paginação no topo da lista, aparecendo só quando há mais contas que
   linhas visíveis, desabilitadas nas pontas e com o scroll seguindo a seleção;
 - `Add` / `Rename` / `Delete` / `Set Active` / `Done` como `GuiButton` normais;
+  com a conta ativa selecionada, o botão vira **`Set Inactive`** e limpa a conta
+  ativa (o jogo volta a usar a sessão do launcher no próximo join);
 - campo de nome no centro (borda de 1 px + fundo translúcido), Enter confirma,
   Esc cancela, nick `3-16` `[A-Za-z0-9_]`;
 - a mensagem de status aparece entre o painel e os botões;

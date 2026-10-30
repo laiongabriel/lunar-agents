@@ -116,6 +116,41 @@ public class GuiAltManager extends GuiScreen {
         updateScrollButtons();
     }
 
+    /**
+     * Set Active doubles as Set Inactive: when the selected account is already
+     * the active one, the button clears it (the game falls back to the session
+     * from the launcher). Rename/Delete are disabled without a selection.
+     */
+    private void updateActionButton() {
+        boolean hasSelection = this.selected >= 0 && this.selected < this.accounts.size();
+
+        GuiButton activate = button(ID_ACTIVATE);
+        if (activate != null) {
+            boolean isActive = hasSelection && this.accounts.get(this.selected).equalsIgnoreCase(this.active);
+            activate.enabled = hasSelection;
+            activate.displayString = isActive ? "Set Inactive" : "Set Active";
+        }
+
+        GuiButton rename = button(ID_RENAME);
+        if (rename != null) {
+            rename.enabled = hasSelection;
+        }
+
+        GuiButton delete = button(ID_DELETE);
+        if (delete != null) {
+            delete.enabled = hasSelection;
+        }
+    }
+
+    private GuiButton button(int id) {
+        for (GuiButton candidate : this.buttonList) {
+            if (candidate.id == id) {
+                return candidate;
+            }
+        }
+        return null;
+    }
+
     /** The arrows only make sense when the list does not fit on screen. */
     private void updateScrollButtons() {
         boolean needed = this.accounts.size() > this.visibleRows;
@@ -152,6 +187,8 @@ public class GuiAltManager extends GuiScreen {
         }
 
         drawDefaultBackground();
+
+        updateActionButton();
 
         centered("Alt Manager", this.width / 2, 22, COLOR_TEXT);
         centered("offline accounts - they only work on offline-mode servers",
@@ -511,8 +548,16 @@ public class GuiAltManager extends GuiScreen {
             return;
         }
 
-        this.active = this.accounts.get(this.selected);
-        report("Active account: " + this.active, false);
+        String name = this.accounts.get(this.selected);
+
+        if (name.equalsIgnoreCase(this.active)) {
+            this.active = "";
+            report("No active account - using the launcher session", false);
+        } else {
+            this.active = name;
+            report("Active account: " + name, false);
+        }
+
         save();
     }
 
